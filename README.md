@@ -1,35 +1,24 @@
-# NAILMONTH 모바일 AI 웹앱 MVP
+# NAILMONTH 무료 추천형 + 학생 이미지 등록 앱
 
-## 구성
-- `index.html`: 스마트폰용 웹 화면 (조건 선택, AI 생성 결과 확인, 이미지 저장/공유)
-- `api/generate.mjs`: Vercel 서버 기능 (OpenAI 이미지 생성 API를 서버에서 호출)
-- `package.json`: 자바스크립트 모듈 구성
+## 핵심
+- ChatGPT에서 학생들이 만든 네일 디자인 이미지를 관리자가 업로드합니다.
+- 디자인은 Vercel Blob의 **Public** 저장소에 저장되어 다른 기기에서도 보입니다.
+- 계절·분위기·컬러·난이도 매칭 점수로 디자인 5종 추천, 교체, 메뉴판 인쇄/이미지 저장.
+- OpenAI API / 결제 / AI 환경변수는 **필요하지 않습니다**.
 
-## 실행 방법
-1. 프로젝트 폴더를 GitHub 저장소에 업로드합니다.
-2. Vercel(https://vercel.com)에 로그인하여 해당 GitHub 저장소를 Import해 배포합니다. 프레임워크 프리셋은 Other로 설정합니다.
-3. Vercel 프로젝트의 Settings > Environment Variables에 다음 값 설정:
-   - `OPENAI_API_KEY`: 교사가 관리하는 OpenAI API 키 (절대로 HTML이나 GitHub에 기입하지 않음)
-   - `DEMO_ACCESS_CODE`: 임의의 길고 추측하기 어려운 시연 접속 코드
-   - `OPENAI_IMAGE_MODEL`: `gpt-image-2.5-flare` (선택; 접근 권한이 있는 경우 사용)
-4. 설정 후 새 버전으로 재배포합니다.
-5. 스마트폰에서 배포 URL을 열고 시연 접속 코드를 입력하여 AI 이미지 생성 버튼을 누릅니다.
+## 기존 Vercel 프로젝트 교체 방법
+1. ZIP 압축 해제 후 `index.html`, `package.json`, `api/designs.mjs`를 기존 GitHub 저장소의 루트에 같은 구조로 올리세요. 기존 `api/generate.mjs`는 더 이상 사용하지 않으며 삭제해도 됩니다.
+2. Vercel 프로젝트의 Storage 탭 → Create Database → **Blob** → **Public**으로 저장소를 만들고 기존 `nailmonth` 프로젝트에 연결합니다. `BLOB_READ_WRITE_TOKEN` 환경 변수가 자동 추가되는지 확인하세요. (Blob 사용 가능 여부 및 무료 한도는 Vercel 플랜에 따라 다릅니다.)
+3. Settings → Environment Variables에서 `ADMIN_UPLOAD_CODE`를 추가합니다. 길고 추측하기 어려운 비밀번호를 쓰세요. **Production** 적용.
+4. Vercel에서 최신 커밋 배포 완료(Ready)를 확인합니다. 환경 변수를 나중에 설정했다면 Redeploy합니다.
+5. 웹주소 → `디자인 등록 · 관리` 탭 → 관리자 코드·이미지·태그 입력 → 등록. 다른 스마트폰에서 `네일숍 추천` 탭을 열어 새로고침하면 공유됩니다.
 
 ## 유의사항
-- 실제 AI 이미지는 API 설정과 배포를 마쳐야 생성됩니다. 파일을 단독으로 열면 AI 호출이 작동하지 않습니다.
-- OpenAI API는 ChatGPT 구독과 별도 결제/사용 설정이 필요할 수 있습니다.
-- `DEMO_ACCESS_CODE`는 비용 남용 방지를 위한 기본적인 장벽일 뿐 완전한 인증 체계가 아닙니다.
-- 예제의 메모리 기반 시간당 5회 제한은 서버리스의 여러 인스턴스 간 공유되지 않습니다. 공개 서비스 전에는 Redis 등 외부 저장소 기반 호출량 제한, 사용량 한도, 관리 인증, 로그 관리가 필요합니다.
-- AI 이미지 한 장에 다섯 가지 세트가 포함되도록 요청하지만 결과 구획과 손톱 개수의 정확성은 보장되지 않습니다. 네일 전공 학생이 기술적 실현 가능성을 검수해야 합니다.
-- 실제 이미지 생성 API 호출은 이 개발 환경에서 테스트하지 않았습니다. Vercel 배포와 키 설정 이후 모바일 실기기 테스트가 필요합니다.
-
-## 첫 배포 체크리스트 (2026-11-06)
-1. GitHub 저장소 만들기 → 압축 파일 속 `index.html`, `package.json`, `README.md`, `api/generate.mjs`를 폴더 구조 그대로 업로드합니다. ZIP 파일 자체를 올리지 마세요.
-2. Vercel → Add New Project → GitHub 저장소 Import → Framework Preset: Other → Deploy.
-3. Vercel Project Settings → Environment Variables에 `OPENAI_API_KEY`, `DEMO_ACCESS_CODE`, `OPENAI_IMAGE_MODEL=gpt-image-2.5-flare` 추가합니다. Environment에 Production을 포함하세요.
-4. Deployments → 최신 배포 메뉴 → Redeploy. 환경변수 추가 뒤 재배포하지 않으면 적용되지 않습니다.
-5. 스마트폰에서 `https://프로젝트이름.vercel.app` 접속 → 조건 선택 → 접속 코드 → AI 아트 생성.
-6. 교사 계정으로 API 결제 및 모델 접근 권한 확인, 자동 충전 해제 권장. API 키는 절대 GitHub나 HTML에 붙여넣지 마세요.
-7. 무료 배포·개인 Hobby 플랜의 이용 자격 및 제한은 Vercel 현재 약관에 따라 확인하세요.
-
-주의: 시연 접속 코드는 인증/비용 통제의 완전한 해결책이 아닙니다. 실제 외부 공개 전에 영속 저장소 기반 사용량 제한과 모니터링을 추가하세요.
+- 이 앱은 수업/데모데이용 MVP입니다. 관리자 코드를 학생에게 공유하면 공유받은 사람이 등록/삭제할 수 있습니다. 공개 운영 전에는 사용자별 로그인/권한 관리, 속도 제한, 모니터링을 추가하세요.
+- 공개 Blob 저장소의 이미지 URL은 누구나 접근할 수 있습니다. 학생 얼굴·고객 정보·개인정보가 담긴 사진을 등록하지 마세요.
+- 업로드 시 브라우저에서 JPEG로 압축하여 전송합니다(서버 최대 2MB). 작은 이미지로 제한되어 있습니다.
+- 디자인별 메타데이터는 Blob의 개별 JSON 파일로 저장하는 데모용 구조입니다. 등록량이 늘어나면 별도 DB 사용을 권장합니다.
+- ChatGPT에서 생성한 이미지라도 학생 기여/사용 허락/타인 작품과의 유사성 여부를 검토하세요.
+- 추천은 AI 모델 추론이 아닌 **규칙 기반 점수 추천**입니다.
+- Vercel의 Hobby 요금제는 이용 목적 및 무료 사용 한도를 확인하세요.
+- 저장할 디자인이 1개라도 있어야 추천 결과가 보입니다. 5개 미만이면 그 개수만 추천합니다.
